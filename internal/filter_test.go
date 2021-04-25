@@ -1,6 +1,7 @@
-package internal
+package internal_test
 
 import (
+	"github.com/jmwri/web-crawler/internal"
 	"net/url"
 	"reflect"
 	"testing"
@@ -32,7 +33,7 @@ func TestDedupeURLs(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := DedupeURLs(tt.args.urls); !reflect.DeepEqual(got, tt.want) {
+			if got := internal.DedupeURLs(tt.args.urls); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("DedupeURLs() = %v, want %v", got, tt.want)
 			}
 		})
@@ -42,7 +43,7 @@ func TestDedupeURLs(t *testing.T) {
 func TestFilterURLs(t *testing.T) {
 	type args struct {
 		urls    []*url.URL
-		filters []URLFilterFunc
+		filters []internal.URLFilterFunc
 	}
 	tests := []struct {
 		name string
@@ -57,8 +58,8 @@ func TestFilterURLs(t *testing.T) {
 					{Scheme: "https", Host: "test.com"},
 					{Scheme: "mailto", Opaque: "test@localhost"},
 				},
-				filters: []URLFilterFunc{
-					DedupeURLs, RemoveNonHTTPURLs,
+				filters: []internal.URLFilterFunc{
+					internal.DedupeURLs, internal.RemoveNonHTTPURLs,
 				},
 			},
 			want: []*url.URL{
@@ -73,8 +74,8 @@ func TestFilterURLs(t *testing.T) {
 					{Scheme: "https", Host: "test.com"},
 					{Scheme: "https", Host: "sub.test.com"},
 				},
-				filters: []URLFilterFunc{
-					DedupeURLs, SameDomainFilter(&url.URL{Scheme: "https", Host: "test.com"}),
+				filters: []internal.URLFilterFunc{
+					internal.DedupeURLs, internal.SameDomainFilter(&url.URL{Scheme: "https", Host: "test.com"}),
 				},
 			},
 			want: []*url.URL{
@@ -84,7 +85,7 @@ func TestFilterURLs(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := FilterURLs(tt.args.urls, tt.args.filters...); !reflect.DeepEqual(got, tt.want) {
+			if got := internal.FilterURLs(tt.args.urls, tt.args.filters...); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("FilterURLs() = %v, want %v", got, tt.want)
 			}
 		})
@@ -127,7 +128,7 @@ func TestRemoveNonHTTPURLs(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := RemoveNonHTTPURLs(tt.args.urls); !reflect.DeepEqual(got, tt.want) {
+			if got := internal.RemoveNonHTTPURLs(tt.args.urls); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("RemoveNonHTTPURLs() = %v, want %v", got, tt.want)
 			}
 		})
@@ -195,7 +196,7 @@ func TestSameDomainFilter(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			f := SameDomainFilter(tt.params.target)
+			f := internal.SameDomainFilter(tt.params.target)
 			if got := f(tt.args.urls); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("SameDomainFilter() = %v, want %v", got, tt.want)
 			}
