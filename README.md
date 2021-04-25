@@ -19,6 +19,7 @@ Usage of crawler <target>:
 * Add support for `rel="nofollow"`
 * Output results as the program runs rather than at the end
 * Make it clear when errors impact results
+* Check Content-Type when scraping pages
 
 ## Tests
 
