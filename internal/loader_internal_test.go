@@ -13,12 +13,12 @@ func TestNewHTTPGetLoader(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want *HTTPGetLoader
+		want HTTPGetLoader
 	}{
 		{
 			name: "creates successfully",
 			args: args{client: http.DefaultClient},
-			want: &HTTPGetLoader{http.DefaultClient},
+			want: HTTPGetLoader{http.DefaultClient},
 		},
 	}
 	for _, tt := range tests {
