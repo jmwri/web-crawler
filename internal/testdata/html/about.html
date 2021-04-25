@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Web Crawler - Home</title>
+</head>
+<body>
+    <header>
+        <h1>Home</h1>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="https://github.com/jmwri/web-crawler">GitHub</a></li>
+        </ul>
+    </nav>
+    <p>The web crawler should parse all types of anchor tags. Among others, the following are supported:</p>
+    <ul>
+        <li><a href="https://test.com/some/page/#section">Links with schemes, paths, trailing slashes, and fragments</a></li>
+        <li><a href="https://test.com/some/page/">Links with schemes, paths, and trailing slashes</a></li>
+        <li><a href="https://test.com/cool-page">Links with schemes, paths</a></li>
+        <li><a href="https://test.com">Links with schemes</a></li>
+        <li><a href="index.html">Relative paths</a></li>
+        <li><a href="//test.com">Non-specific schemes</a></li>
+        <li><a href="https://test.com/duplicate">Removes duplicates</a></li>
+        <li><a href="https://test.com/duplicate">Removes duplicates</a></li>
+    </ul>
+</body>
+</html>
