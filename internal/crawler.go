@@ -207,10 +207,9 @@ func responseWorker(wg *sync.WaitGroup, maxDepth int, res Result, reqCh chan<- c
 			// Send the request back to requestWorker
 			// Write to channel in a routine to avoid a deadlock
 			wg.Add(1)
-			n := n
-			go func() {
-				reqCh <- n
-			}()
+			go func(r crawlRequest) {
+				reqCh <- r
+			}(n)
 		}
 		wg.Done()
 	}
