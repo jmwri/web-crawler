@@ -17,7 +17,7 @@ func init() {
 
 func main() {
 	sameDomainPtr := flag.Bool("sameDomain", true, "only crawl the same domain")
-	maxDepthPtr := flag.Int("maxDepth", 4, "crawl up to this depth")
+	maxDepthPtr := flag.Int("maxDepth", 4, "crawl up to this depth - 0 for no limit")
 	workersPtr := flag.Int("workers", 20, "number of workers")
 	helpPtr := flag.Bool("h", false, "show help")
 

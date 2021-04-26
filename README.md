@@ -7,7 +7,7 @@ A simple web crawler
 Usage of crawler <target>:
   -h    show help
   -maxDepth int
-        crawl up to this depth (default 4)
+        crawl up to this depth - 0 for no limit (default 4)
   -sameDomain
         only crawl the same domain (default true)
   -workers int
