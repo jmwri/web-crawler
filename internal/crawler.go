@@ -171,6 +171,7 @@ func Crawl(loader LoaderFunc, extractor ExtractorFunc, o CrawlOptions) (Result, 
 
 	// Queue the initial request
 	wg.Add(1)
+	reqLog.MarkAsSeen(o.Target)
 	reqCh <- crawlRequest{
 		target: o.Target,
 		depth:  1,
