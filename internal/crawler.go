@@ -72,14 +72,6 @@ type Result struct {
 	mu *sync.Mutex
 }
 
-// Seen returns whether or not the given URL has been seen in the results
-func (r Result) Seen(u *url.URL) bool {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	_, seen := r.crawledURLs[u.String()]
-	return seen
-}
-
 // Store discovered URLs against a URL
 func (r Result) Store(u *url.URL, urls []string) {
 	r.mu.Lock()
@@ -105,6 +97,28 @@ func (r Result) MaxDepth() int {
 // URLs returns a map of URLs that the crawler visited, and a list of URLs found on that page
 func (r Result) URLs() map[string][]string {
 	return r.crawledURLs
+}
+
+// requestLog stores URLs that we have previously seen and issued requests for
+type requestLog struct {
+	// seenURLs contains URLs that we have already requested, or are trying to request
+	seenURLs map[string]bool
+	// mu is an internal mutex to ensure routine safe access of seenURLs
+	mu *sync.Mutex
+}
+
+// Seen returns whether or not the given URL has been seen before
+func (l requestLog) Seen(u *url.URL) bool {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	return l.seenURLs[u.String()]
+}
+
+// MarkAsSeen marks the given URL as seen
+func (l requestLog) MarkAsSeen(u *url.URL) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	l.seenURLs[u.String()] = true
 }
 
 // buildFilters according the the provided options
@@ -138,6 +152,10 @@ func Crawl(loader LoaderFunc, extractor ExtractorFunc, o CrawlOptions) (Result, 
 		crawledURLs: make(map[string][]string),
 		mu:          &sync.Mutex{},
 	}
+	reqLog := requestLog{
+		seenURLs: make(map[string]bool),
+		mu:       &sync.Mutex{},
+	}
 
 	// wg tracks the number of URLs currently being processed
 	wg := &sync.WaitGroup{}
@@ -148,7 +166,7 @@ func Crawl(loader LoaderFunc, extractor ExtractorFunc, o CrawlOptions) (Result, 
 		go requestWorker(loader, extractor, reqCh, resCh, filters, modifiers)
 	}
 	for i := 0; i < o.Workers; i++ {
-		go responseWorker(wg, o.MaxDepth, res, reqCh, resCh)
+		go responseWorker(wg, o.MaxDepth, reqLog, res, reqCh, resCh)
 	}
 
 	// Queue the initial request
@@ -186,7 +204,7 @@ func requestWorker(loader LoaderFunc, extractor ExtractorFunc, reqCh <-chan craw
 }
 
 // responseWorker stores and initiates requests for scraped URLs
-func responseWorker(wg *sync.WaitGroup, maxDepth int, res Result, reqCh chan<- crawlRequest, resCh <-chan crawlResponse) {
+func responseWorker(wg *sync.WaitGroup, maxDepth int, reqLog requestLog, res Result, reqCh chan<- crawlRequest, resCh <-chan crawlResponse) {
 	for r := range resCh {
 		// Store the scraped URLs against the URL they were found on
 		res.Store(r.request.target, urlsToString(r.urls))
@@ -200,10 +218,10 @@ func responseWorker(wg *sync.WaitGroup, maxDepth int, res Result, reqCh chan<- c
 				continue
 			}
 			// Skip links we've already seen somewhere else
-			// Note: potential race condition that could cause a URL to be requested twice
-			if res.Seen(n.target) {
+			if reqLog.Seen(n.target) {
 				continue
 			}
+			reqLog.MarkAsSeen(n.target)
 			// Send the request back to requestWorker
 			// Write to channel in a routine to avoid a deadlock
 			wg.Add(1)
