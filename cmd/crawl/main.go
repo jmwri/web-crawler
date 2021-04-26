@@ -17,8 +17,8 @@ func init() {
 
 func main() {
 	sameDomainPtr := flag.Bool("sameDomain", true, "only crawl the same domain")
-	maxDepthPtr := flag.Int("maxDepth", 2, "crawl up to this depth")
-	workersPtr := flag.Int("workers", 10, "number of workers")
+	maxDepthPtr := flag.Int("maxDepth", 4, "crawl up to this depth")
+	workersPtr := flag.Int("workers", 20, "number of workers")
 	helpPtr := flag.Bool("h", false, "show help")
 
 	flag.Parse()
@@ -48,10 +48,7 @@ func main() {
 		if links == nil {
 			continue
 		}
-		fmt.Printf("%s links to:\n", page)
-		for _, link := range links {
-			fmt.Printf("- %s\n", link)
-		}
+		fmt.Println(page, links)
 	}
 
 	fmt.Printf("crawled %d pages\n", len(res.URLs()))
